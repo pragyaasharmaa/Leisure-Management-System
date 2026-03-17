@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Expense Tracker</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<div class="theme-toggle">
+  <button onclick="toggleTheme()">🌙 / ☀️</button>
+</div>
+<!-- 📝 REGISTER -->
+<div id="register-section" class="login-wrapper" style="display:none;">
+  <div class="login-card">
+    <h1>Create Account</h1>
+    <p class="subtitle">Start tracking your expenses</p>
+
+    <input type="text" id="reg-username" placeholder="Username" />
+    <input type="email" id="reg-email" placeholder="Email" />
+    <input type="password" id="reg-password" placeholder="Password" />
+    <input type="password" id="reg-confirm-password" placeholder="Confirm Password" />
+
+    <button class="login-btn" onclick="register()">Sign Up</button>
+    <p id="register-error" class="error-text"></p>
+
+    <p style="margin-top:16px;color:var(--muted);">
+      Already have an account?
+      <a href="#" onclick="showLogin(); return false;" style="color:var(--accent);">Login</a>
+    </p>
+  </div>
+</div>
+<!-- 🔐 LOGIN -->
+<div id="login-section" class="login-wrapper">
+  <div class="login-card">
+    <h1>Expense Tracker</h1>
+    <p class="subtitle">Manage your expenses smartly</p>
+
+    <input type="text" id="username" placeholder="Username" />
+    <input type="password" id="password" placeholder="Password" />
+    <button class="login-btn" onclick="login()">Login</button>
+    <p id="login-error" class="error-text"></p>
+
+    <p style="margin-top:16px;color:var(--muted);">
+      Don't have an account?
+      <a href="#" onclick="showRegister(); return false;" style="color:var(--accent);">Sign Up</a>
+    </p>
+  </div>
+</div>
+
+<!-- 📊 APP -->
+<div id="dashboard-section" class="dashboard-wrapper" style="display:none;">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <h2>Tracker</h2>
+    <nav>
+      <a class="active" id="nav-dashboard" onclick="showDashboard()">Dashboard</a>
+      <a id="nav-expenses" onclick="showExpenses()">Expenses</a>
+      <a id="nav-summary" onclick="showSummary()">Summary</a>
+    </nav>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </aside>
+
+  <!-- ================= DASHBOARD ================= -->
+  <main class="dashboard-shell" id="dashboard-page">
+
+    <header class="dashboard-header">
+      <h1>Overview</h1>
+      <span class="currency">INR ₹</span>
+    </header>
+
+    <section class="top-grid">
+
+      <div class="overview-card">
+        <h3>Spending Overview</h3>
+        <canvas id="barChart"></canvas>
+      </div>
+
+      <div class="calendar-card">
+        <div class="calendar-header">
+          <button id="prevMonth">‹</button>
+          <h3 id="calendarTitle">Calendar</h3>
+          <button id="nextMonth">›</button>
+        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+      </div>
+
+      <div class="calendar-summary">
+        Total this month:
+        <strong id="monthTotal">₹ 0</strong>
+      </div>
+
+    </section>
+
+    <section class="bottom-grid">
+
+      <div class="pie-card">
+        <h3>Category Breakdown</h3>
+        <canvas id="pieChart"></canvas>
+      </div>
+
+      <div class="kpi-stack" style="grid-template-columns: 1fr;">
+
+        <!-- Monthly Income -->
+        <div class="kpi-card">
+          <h4>Monthly Income</h4>
+          <input
+                  type="number"
+                  id="monthlyIncomeInput"
+                  placeholder="Enter income"
+                  style="width:100%;padding:8px;border-radius:8px;border:none;margin-bottom:8px;"
+          />
+          <p>
+            Remaining:
+            <strong id="remainingAmount">₹ 0</strong>
+          </p>
+        </div>
+
+        <!-- Monthly To-Do -->
+        <div class="kpi-card">
+          <h4>Monthly To-Do (Planned)</h4>
+          <div style="display:flex;gap:6px;margin-bottom:6px;">
+            <input id="todoTitle" placeholder="Expense name"
+                   style="flex:2;padding:6px;border-radius:6px;border:none;">
+            <input id="todoAmount" type="number" placeholder="₹"
+                   style="flex:1;padding:6px;border-radius:6px;border:none;">
+            <button onclick="addTodoItem()"
+                    style="padding:6px 10px;border-radius:6px;border:none;">+</button>
+          </div>
+          <div id="todoList" style="max-height:120px;overflow-y:auto;"></div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ================= EXPENSES ================= -->
+  <main class="dashboard-shell" id="expenses-page" style="display:none;">
+
+    <header class="dashboard-header">
+      <h1>Expenses</h1>
+    </header>
+
+    <!-- Filters -->
+    <div class="overview-card" style="margin-bottom:20px;">
+      <h3>Filter by Month</h3>
+      <div style="display:flex;gap:12px;">
+        <input
+                type="number"
+                id="expenseYear"
+                placeholder="Year"
+                style="padding:6px;border-radius:6px;border:none;"
+        />
+
+        <select id="expenseMonth"></select>
+
+      </div>
+    </div>
+
+    <!-- Add Expense -->
+    <div class="overview-card" style="margin-bottom:20px;">
+      <h3>Add Expense</h3>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;">
+        <input id="expenseTitle" placeholder="Expense name" style="padding:10px;border-radius:8px;border:1px solid #ccc;">
+        <input id="expenseAmount" type="number" placeholder="Amount" style="padding:10px;border-radius:8px;border:1px solid #ccc;">
+        <select id="expenseCategory" style="padding:10px;border-radius:8px;border:1px solid #ccc;">
+          <option value="Food">Food</option>
+          <option value="Transport">Transport</option>
+          <option value="Entertainment">Entertainment</option>
+          <option value="Shopping">Shopping</option>
+          <option value="Bills">Bills</option>
+          <option value="Health">Health</option>
+          <option value="General" selected>General</option>
+        </select>
+        <input id="expenseDate" type="date" style="padding:10px;border-radius:8px;border:1px solid #ccc;">
+        <button onclick="addExpense()" style="padding:10px;border-radius:8px;border:none;background:var(--accent);color:white;cursor:pointer;">Add</button>
+      </div>
+    </div>
+    <!-- Expense List -->
+    <div class="overview-card">
+      <h3>All Expenses</h3>
+      <table style="width:100%;border-collapse:collapse;">
+        <thead>
+        <tr style="border-bottom:2px solid var(--accent);">
+          <th align="left" style="padding:12px;">Title</th>
+          <th align="left" style="padding:12px;">Category</th>
+          <th align="left" style="padding:12px;">Date</th>
+          <th align="left" style="padding:12px;">Amount</th>
+          <th align="left" style="padding:12px;">Action</th>
+        </tr>
+        </thead>
+        <tbody id="expenseTableBody"></tbody>
+      </table>
+    </div>
+
+  </main>
+  <main class="dashboard-shell" id="summary-page" style="display:none;">
+
+    <header class="dashboard-header">
+      <h1>Summary</h1>
+      <span class="currency">INR ₹</span>
+    </header>
+
+    <!-- Year-over-Year Comparison Chart -->
+    <div class="overview-card" style="margin-bottom:24px;">
+      <h3>Year-over-Year Spending</h3>
+      <canvas id="yearComparisonChart" style="max-height:300px;"></canvas>
+    </div>
+
+    <!-- Yearly Breakdown -->
+    <div id="yearlyBreakdown"></div>
+
+  </main>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="dashboard.js"></script>
+
+<!-- 📅 MODAL -->
+<div id="dayModal" class="modal-overlay" style="display:none;">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 id="modalDate"></h3>
+      <button onclick="closeModal()">✕</button>
+    </div>
+    <div id="modalBody" class="modal-body"></div>
+    <div class="modal-footer">
+      <strong>Total:</strong>
+      <span id="modalTotal">₹0</span>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
