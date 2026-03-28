@@ -254,7 +254,7 @@ A full-stack web application for tracking with multi-user support, real-time ana
 
 ```
 
-ExpenseTracker/
+Leisure Tracker/
 
 ├── src/
 
